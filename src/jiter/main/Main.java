@@ -16,16 +16,15 @@ public class Main {
             lst.add(i);
 
         IterableEnumerator<Integer> enumer = IterableEnumerator.from(lst);
-        Iteratee<Integer, Integer> iter = Iteratees.length();
 
-        //System.out.println(enumer.run(iter));
+        //System.out.println(enumer.run(Iteratees.length()));
         //System.out.println(enumer.run(Iteratees.sumInt()));
         //System.out.println(enumer.run(Iteratees.take(5)));
 
-        Iteratee<Integer, List<Integer>> dropFiveTake5 =
+        Iteratee<Integer, List<Integer>> drop5Take5 =
                 Iteratees.<Integer>drop(5).flatMap(x -> Iteratees.<Integer>take(5));
 
-        System.out.println(enumer.run(dropFiveTake5));
+        System.out.println(enumer.run(drop5Take5));
     }
 
 }
