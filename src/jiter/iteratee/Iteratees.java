@@ -1,9 +1,11 @@
 package jiter.iteratee;
 
+import jiter.coll.List;
+import jiter.coll.Unit;
+import jiter.fun.Monoid;
+import jiter.fun.Monoids;
 import jiter.input.Input;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.function.Function;
 
 public class Iteratees {
@@ -31,21 +33,21 @@ public class Iteratees {
      */
 
     static class Sums {
-        static Function<Input<Integer>, Iteratee<Integer, Integer>> step(final Integer acc) {
+        static <T> Function<Input<T>, Iteratee<T, T>> step(Monoid<T> mon, final T acc) {
             return in -> in.match(
-                el -> new Cont<>(step(acc + el)),
-                () -> new Cont<>(step(acc)),
+                el -> new Cont<>(step(mon, mon.mappend(acc, el))),
+                () -> new Cont<>(step(mon, acc)),
                 () -> new Done<>(acc, Input.eof())
             );
         }
     }
 
     public static Iteratee<Integer, Integer> sumInt() {
-        return new Cont<>(Sums.step(0));
+        return new Cont<>(Sums.step(Monoids.IntegerMonoid, 0));
     }
 
     /*
-     * Take & Drop
+     * Take
      */
 
     static class Take {
@@ -55,31 +57,53 @@ public class Iteratees {
                     if (n <= 0) {
                         return new Done<>(acc, Input.elem(el));
                     } else {
-                        acc.add(el);
-                        return new Cont<>(step(n-1, acc));
+                        return new Cont<>(step(n - 1, acc.append(el)));
                     }
                 },
                 () -> new Cont<>(step(n, acc)),
                 () -> new Done<>(acc, Input.eof())
             );
         }
+    }
 
-        static <T> Function<Input<T>, Iteratee<T, Void>> drop(final Integer n) {
+    public static <T> Iteratee<T, List<T>> take(int n) {
+        return new Cont<>(Take.step(n, List.nil()));
+    }
+
+    /*
+     * Drop
+     */
+
+    static class Drop {
+        static <T> Function<Input<T>, Iteratee<T, Unit>> step(final Integer n) {
             return in -> in.match(
-                el -> n > 0 ? new Cont<>(drop(n-1)) : new Done<>(null, Input.empty()),
-                () -> new Cont<>(drop(n)),
-                () -> new Done<>(null, Input.eof())
+                el -> n > 0 ? new Cont<>(step(n - 1)) : new Done<>(null, Input.empty()),
+                () -> new Cont<>(step(n)),
+                () -> new Done<>(Unit.unit(), Input.eof())
             );
         }
     }
 
-    public static <T> Iteratee<T, List<T>> take(int n) {
-        LinkedList<T> lst = new LinkedList<>();
-        return new Cont<>(Take.step(n, lst));
+    public static <T> Iteratee<T, Unit> drop(int n) {
+        return new Cont<>(Drop.step(n));
     }
 
-    public static <T> Iteratee<T, Void> drop(int n) {
-        return new Cont<>(Take.drop(n));
+    /*
+     * Filter
+     */
+
+    static class Filter {
+        static <T> Function<Input<T>, Iteratee<T, List<T>>> step(final Function<T, Boolean> predicate, final List<T> acc) {
+            return in -> in.match(
+                el -> new Cont<>(step(predicate, predicate.apply(el) ? acc.append(el) : acc)),
+                () -> new Cont<>(step(predicate, acc)),
+                () -> new Done<>(acc, Input.eof())
+            );
+        }
+    }
+
+    public static <T> Iteratee<T, List<T>> filter(Function<T, Boolean> predicate) {
+        return new Cont<>(Filter.step(predicate, List.nil()));
     }
 
 }
