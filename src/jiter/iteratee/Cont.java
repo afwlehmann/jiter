@@ -1,3 +1,8 @@
+/*
+ * Cont.java
+ * copyright (c) 2014 by Alexander Lehmann <afwlehmann@googlemail.com>
+ */
+
 package jiter.iteratee;
 
 import jiter.input.Input;

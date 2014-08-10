@@ -1,3 +1,8 @@
+/*
+ * Empty.java
+ * copyright (c) 2014 by Alexander Lehmann <afwlehmann@googlemail.com>
+ */
+
 package jiter.input;
 
 import jiter.fun.Function0;

@@ -1,3 +1,8 @@
+/*
+ * Main.java
+ * copyright (c) 2014 by Alexander Lehmann <afwlehmann@googlemail.com>
+ */
+
 package jiter.main;
 
 import jiter.coll.List;
