@@ -38,4 +38,9 @@ public final class Error<In, Out> implements Iteratee<In, Out> {
                        Function<Error<In, Out>, T> errorFunc) {
         return errorFunc.apply(this);
     }
+
+    @SuppressWarnings("unchecked")
+    public <NewIn, NewOut> Error<NewIn, NewOut> self() {
+        return (Error<NewIn, NewOut>) this;
+    }
 }
