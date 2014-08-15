@@ -15,6 +15,18 @@ import java.util.function.Function;
 
 public class Iteratees {
 
+    public static <In, Out> Done<In, Out> done(Out result, Input<In> remainingInput) {
+        return new Done<>(result, remainingInput);
+    }
+
+    public static <In, Out> Cont<In, Out> cont(Function<Input<In>, Iteratee<In, Out>> k) {
+        return new Cont<>(k);
+    }
+
+    public static <In, Out> Error<In, Out> error(RuntimeException reason) {
+        return new Error<>(reason);
+    }
+
     /*
      * Length
      */
