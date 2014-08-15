@@ -15,6 +15,10 @@ public final class Error<In, Out> implements Iteratee<In, Out> {
         this.reason = reason;
     }
 
+    public Error(Error<?, ?> other) {
+        this.reason = other.reason;
+    }
+
     @Override
     public Out run() {
         throw reason;
@@ -39,8 +43,4 @@ public final class Error<In, Out> implements Iteratee<In, Out> {
         return errorFunc.apply(this);
     }
 
-    @SuppressWarnings("unchecked")
-    public <NewIn, NewOut> Error<NewIn, NewOut> self() {
-        return (Error<NewIn, NewOut>) this;
-    }
 }

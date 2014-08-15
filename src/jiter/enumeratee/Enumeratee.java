@@ -6,9 +6,10 @@
 package jiter.enumeratee;
 
 import jiter.input.Input;
-import jiter.iteratee.Done;
 import jiter.iteratee.Iteratee;
-import jiter.iteratee.Error;
+
+import static jiter.iteratee.Iteratees.done;
+import static jiter.iteratee.Iteratees.error;
 
 public abstract class Enumeratee<From, To> {
 
@@ -20,13 +21,13 @@ public abstract class Enumeratee<From, To> {
 
     protected <TT> Iteratee<From, TT> flatten(Iteratee<From, Iteratee<To, TT>> iter) {
         return iter.flatMap( r -> r.match(
-               _done -> new Done<>(_done.run(), Input.empty()),
+               _done -> done( _done.run(), Input.empty() ),
                _cont -> _cont.apply(Input.eof()).match(
-                   _innerDone  -> new Done<>(_innerDone.run(), Input.eof()),
-                   _innerCont  -> new Error<>(new RuntimeException("Diverging inner iteratee!")),
-                   _innerError -> _innerError.<From, TT>self()
+                   _innerDone  -> done( _innerDone.run(), Input.eof() ),
+                   _innerCont  -> error( new RuntimeException("Diverging inner iteratee!") ),
+                   _innerError -> error( _innerError )
                ),
-               _error -> _error.<From, TT>self()
+               _error -> error( _error )
             )
         );
     }

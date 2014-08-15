@@ -27,6 +27,10 @@ public class Iteratees {
         return new Error<>(reason);
     }
 
+    public static <In, Out> Error<In, Out> error(Error<?, ?> other) {
+        return new Error<>(other);
+    }
+
     /*
      * Length
      */
@@ -34,15 +38,15 @@ public class Iteratees {
     static class Length {
         static <T> Function<Input<T>, Iteratee<T, Integer>> step(final Integer n) { // surprisingly, "int" is sufficient here (since Java 8?).
             return in -> in.match(
-                el -> new Cont<>(step(n + 1)),
-                () -> new Cont<>(step(n)),
-                () -> new Done<>(n, Input.eof())
+                el -> cont(step(n + 1)),
+                () -> cont(step(n)),
+                () -> done(n, Input.eof())
             );
         }
     }
 
     public static <T> Iteratee<T, Integer> length() {
-        return new Cont<>(Length.step(0));
+        return cont(Length.step(0));
     }
 
     /*
@@ -52,15 +56,15 @@ public class Iteratees {
     static class Sums {
         static <T> Function<Input<T>, Iteratee<T, T>> step(Monoid<T> mon, final T acc) {
             return in -> in.match(
-                el -> new Cont<>(step(mon, mon.mappend(acc, el))),
-                () -> new Cont<>(step(mon, acc)),
-                () -> new Done<>(acc, Input.eof())
+                el -> cont(step(mon, mon.mappend(acc, el))),
+                () -> cont(step(mon, acc)),
+                () -> done(acc, Input.eof())
             );
         }
     }
 
     public static Iteratee<Integer, Integer> sumInt() {
-        return new Cont<>(Sums.step(Monoids.IntegerMonoid, 0));
+        return cont(Sums.step(Monoids.IntegerMonoid, 0));
     }
 
     /*
@@ -72,19 +76,19 @@ public class Iteratees {
             return in -> in.match(
                 el -> {
                     if (n <= 0) {
-                        return new Done<>(acc, Input.elem(el));
+                        return done(acc, Input.elem(el));
                     } else {
-                        return new Cont<>(step(n - 1, acc.append(el)));
+                        return cont(step(n - 1, acc.append(el)));
                     }
                 },
-                () -> new Cont<>(step(n, acc)),
-                () -> new Done<>(acc, Input.eof())
+                () -> cont(step(n, acc)),
+                () -> done(acc, Input.eof())
             );
         }
     }
 
     public static <T> Iteratee<T, List<T>> take(int n) {
-        return new Cont<>(Take.step(n, List.nil()));
+        return cont(Take.step(n, List.nil()));
     }
 
     /*
@@ -94,15 +98,15 @@ public class Iteratees {
     static class Drop {
         static <T> Function<Input<T>, Iteratee<T, Unit>> step(final Integer n) {
             return in -> in.match(
-                el -> n > 0 ? new Cont<>(step(n - 1)) : new Done<>(null, Input.empty()),
-                () -> new Cont<>(step(n)),
-                () -> new Done<>(Unit.unit(), Input.eof())
+                el -> n > 0 ? cont(step(n - 1)) : done(null, Input.empty()),
+                () -> cont(step(n)),
+                () -> done(Unit.unit(), Input.eof())
             );
         }
     }
 
     public static <T> Iteratee<T, Unit> drop(int n) {
-        return new Cont<>(Drop.step(n));
+        return cont(Drop.step(n));
     }
 
     /*
@@ -112,15 +116,15 @@ public class Iteratees {
     static class Filter {
         static <T> Function<Input<T>, Iteratee<T, List<T>>> step(final Function<T, Boolean> predicate, final List<T> acc) {
             return in -> in.match(
-                el -> new Cont<>(step(predicate, predicate.apply(el) ? acc.append(el) : acc)),
-                () -> new Cont<>(step(predicate, acc)),
-                () -> new Done<>(acc, Input.eof())
+                el -> cont(step(predicate, predicate.apply(el) ? acc.append(el) : acc)),
+                () -> cont(step(predicate, acc)),
+                () -> done(acc, Input.eof())
             );
         }
     }
 
     public static <T> Iteratee<T, List<T>> filter(Function<T, Boolean> predicate) {
-        return new Cont<>(Filter.step(predicate, List.nil()));
+        return cont(Filter.step(predicate, List.nil()));
     }
 
 }
