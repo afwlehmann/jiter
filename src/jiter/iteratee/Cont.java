@@ -29,7 +29,7 @@ public final class Cont<In, Out> implements Iteratee<In, Out>,
 
         return next.match(
                 dn -> dn.run(),
-                ct -> { throw new RuntimeException("Divergent iteratee"); },
+                ct -> { throw new RuntimeException("Diverging iteratee!"); },
                 er -> er.run()
         );
     }
