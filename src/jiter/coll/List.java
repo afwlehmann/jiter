@@ -21,6 +21,8 @@ public abstract class List<T> {
 
     public abstract List<T> tail();
 
+    public abstract boolean isEmpty();
+
     public abstract <S> S match(Function<Cons<T>, S> consFun, Function0<S> nilFun);
 
     @SuppressWarnings("unchecked")
@@ -48,6 +50,17 @@ public abstract class List<T> {
             cs -> cs.tail().extend(other).prepend(cs.head()),
             () -> other
         );
+    }
+
+    public List<T> remove(T elem) {
+        return this.match(
+            cs -> cs.head().equals(elem) ? cs.tail() : cons(cs.head(), cs.tail().remove(elem)),
+            () -> nil()
+        );
+    }
+
+    public List<T> reverse() {
+        return this.<List<T>>foldLeft(List.nil(), acc -> elt -> acc.prepend(elt));
     }
 
     public boolean contains(T elem) {
@@ -108,6 +121,24 @@ public abstract class List<T> {
         );
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof List))
+            return false;
+
+        @SuppressWarnings("unchecked")
+        List<T> other = (List<T>) obj;
+        Boolean otherContainsAllItemsFromThisList =
+                this.foldLeft(true, acc -> elt -> acc & other.contains(elt));
+
+        return otherContainsAllItemsFromThisList && this.length() == other.length();
+    }
+
+    @Override
+    public int hashCode() {
+        return this.foldLeft(37, acc -> elt -> acc * 37 + elt.hashCode());
+    }
+
     public static class Cons<T> extends List<T> {
         private final T       head;
         private final List<T> tail;
@@ -133,6 +164,11 @@ public abstract class List<T> {
         }
 
         @Override
+        public boolean isEmpty() {
+            return false;
+        }
+
+        @Override
         public <S> S match(Function<Cons<T>, S> consFun, Function0<S> nilFun) {
             return consFun.apply(this);
         }
@@ -150,6 +186,11 @@ public abstract class List<T> {
         @Override
         public List<T> tail() {
             throw new RuntimeException("Nil has no tail.");
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return true;
         }
 
         @Override
