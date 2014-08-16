@@ -15,6 +15,11 @@ public final class Done<In, Out> implements Iteratee<In, Out> {
     private final Input<In> remainingInput;
 
     public Done(Out result, Input<In> remainingInput) {
+        if (result == null)
+            throw new IllegalArgumentException("result must not be null.");
+        if (remainingInput == null)
+            throw new IllegalArgumentException("remainingInput must not be null.");
+
         this.result = result;
         this.remainingInput = remainingInput;
     }
@@ -44,6 +49,20 @@ public final class Done<In, Out> implements Iteratee<In, Out> {
                        Function<Cont<In, Out>, T> contFunc,
                        Function<Error<In, Out>, T> errorFunc) {
         return doneFunc.apply(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Done))
+            return false;
+
+        Done other = (Done) obj;
+        return result.equals(other.result) && remainingInput.equals(other.remainingInput);
+    }
+
+    @Override
+    public int hashCode() {
+        return result.hashCode() * 31 + remainingInput.hashCode();
     }
 }
 

@@ -49,4 +49,68 @@ public class IterateeUnitTests {
         e.run();
     }
 
+    @Test
+    public void doneConstructorArguments() {
+        try {
+            done(null, Input.eof());
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("result must not be null.", e.getMessage());
+        }
+
+        try {
+            done(1, null);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("remainingInput must not be null.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void mapDone() {
+        Iteratee<Integer, Integer> d = done(13, Input.elem(3)).map(x -> x * 2);
+        assertEquals(d, done(26, Input.elem(3)));
+    }
+
+    @Test
+    public void flatMapDone() {
+        Iteratee<Integer, Integer> d;
+
+        // done -> done
+        d = done(13, Input.elem(3)).flatMap(x -> done(x * 2, Input.elem(7)));
+        assertEquals(d, done(26, Input.elem(3)));
+
+        // done -> cont
+        d = done(13, Input.elem(3)).flatMap(x -> cont((Input<Integer> y) -> y.match(
+            _elt -> done(x * _elt, Input.empty()),
+            () -> { fail("got Empty"); return null; },
+            () -> { fail("got Error"); return null; }
+        )));
+        assertEquals(d, done(39, Input.empty()));
+
+        // done -> error
+        try {
+            d = done(13, Input.elem(3)).flatMap(x -> error(new RuntimeException("foo")));
+            d.run();
+            fail();
+        } catch (RuntimeException e) {
+            assertEquals("foo", e.getMessage());
+        }
+    }
+
+    @Test
+    public void mapError() {
+        Iteratee<Integer, Integer> e = error(new RuntimeException("bar"));
+        assertEquals(e.map(x -> 2 * x), e);
+    }
+
+    @Test
+    public void flatMapError() {
+        Iteratee<Integer, Integer> e = error(new RuntimeException("bar"));
+
+        assertEquals(e.flatMap(x -> done(13, Input.eof())), e);
+        assertEquals(e.flatMap(x -> cont(y -> y.match(_elt -> null, () -> null, () -> null))), e);
+        assertEquals(e.flatMap(x -> error(new RuntimeException("asdf"))), e);
+    }
+
 }

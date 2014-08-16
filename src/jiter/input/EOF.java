@@ -20,4 +20,9 @@ public final class EOF<T> extends Input<T> {
         return eofFunc.apply();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj.getClass() == this.getClass();
+    }
+
 }

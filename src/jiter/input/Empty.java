@@ -20,4 +20,9 @@ final class Empty<T> extends Input<T> {
         return emptyFunc.apply();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj.getClass() == this.getClass();
+    }
+
 }

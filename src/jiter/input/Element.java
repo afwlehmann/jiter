@@ -28,4 +28,19 @@ final class Element<T> extends Input<T> {
     public <S> S match(Function<T, S> elemFunc, Function0<S> eofFunc, Function0<S> emptyFunc) {
         return elemFunc.apply(elem);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Element))
+            return false;
+
+        Element other = (Element) obj;
+        return other.elem.equals(elem);
+    }
+
+    @Override
+    public int hashCode() {
+        return elem.hashCode();
+    }
+
 }
