@@ -64,5 +64,10 @@ public final class Done<In, Out> implements Iteratee<In, Out> {
     public int hashCode() {
         return result.hashCode() * 31 + remainingInput.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "Done(" + result + ", " + remainingInput + ")";
+    }
 }
 
