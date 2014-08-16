@@ -25,4 +25,9 @@ final class Empty<T> extends Input<T> {
         return obj.getClass() == this.getClass();
     }
 
+    @Override
+    public String toString() {
+        return "Empty";
+    }
+
 }

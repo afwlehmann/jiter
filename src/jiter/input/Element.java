@@ -43,4 +43,9 @@ final class Element<T> extends Input<T> {
         return elem.hashCode();
     }
 
+    @Override
+    public String toString() {
+        return "Element(" + elem + ")";
+    }
+
 }
