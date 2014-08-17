@@ -9,6 +9,7 @@ package jiter;/*
  */
 
 import jiter.input.Input;
+import jiter.iteratee.Cont;
 import jiter.iteratee.Iteratee;
 import static jiter.iteratee.Iteratees.done;
 import static jiter.iteratee.Iteratees.cont;
@@ -111,6 +112,31 @@ public class IterateeUnitTests {
         assertEquals(e.flatMap(x -> done(13, Input.eof())), e);
         assertEquals(e.flatMap(x -> cont(y -> y.match(_elt -> null, () -> null, () -> null))), e);
         assertEquals(e.flatMap(x -> error(new RuntimeException("asdf"))), e);
+    }
+
+    @Test
+    public void mapCont() {
+        Iteratee<Integer, Integer> c = cont(x -> x.match(
+                _elt -> { fail(); return null; },
+                ()   -> { fail(); return null; },
+                ()   -> done(2, Input.elem(42))
+        ));
+
+        Cont<Integer, Integer> fmc = (Cont<Integer, Integer>) c.map(x -> 3 * x);
+        assertEquals(done(6, Input.elem(42)), fmc.apply(Input.eof()));
+    }
+
+    @Test
+    public void flatMapCont() {
+        Iteratee<Integer, Integer> c = cont(x -> x.match(
+            _elt -> { fail(); return null; },
+            ()   -> { fail(); return null; },
+            ()   -> done(2, Input.elem(42))
+        ));
+
+        Cont<Integer, Integer> fmc =
+                (Cont<Integer, Integer>) c.flatMap(x -> done(3 * x, Input.elem(21)));
+        assertEquals(done(6, Input.elem(42)), fmc.apply(Input.eof()));
     }
 
 }
