@@ -108,4 +108,16 @@ public class ListUnitTests {
         );
     }
 
+    @Test
+    public void foldLeftIsCorrect() {
+        assertEquals(true, List.nil().foldLeft(true, acc -> elt -> acc & (boolean) elt));
+        assertEquals("+1+2+3", List.from(1, 2, 3).foldLeft("", acc -> elt -> acc + "+" + elt));
+    }
+
+    @Test
+    public void foldRightIsCorrect() {
+        assertEquals(true, List.nil().foldRight(elt -> acc -> acc & (boolean) elt, true));
+        assertEquals("+3+2+1", List.from(1,2,3).foldRight(elt -> acc -> acc + "+" + elt, ""));
+    }
+
 }
