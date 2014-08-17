@@ -30,7 +30,7 @@ public class Main {
         Iteratee<Integer, List<Integer>> drop5Take5 =
                 Iteratees.<Integer>drop(5).flatMap(x -> Iteratees.<Integer>take(5));
 
-        //System.out.println(enumer.run(drop5Take5));
+        System.out.println(enumer.run(drop5Take5));
 
         List<Integer> foo = List.from(28, 29);
         foo = foo.prepend(28).prepend(29).map(x -> 2*x);

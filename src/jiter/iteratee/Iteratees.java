@@ -98,7 +98,7 @@ public class Iteratees {
     static class Drop {
         static <T> Function<Input<T>, Iteratee<T, Unit>> step(final Integer n) {
             return in -> in.match(
-                el -> n > 0 ? cont(step(n - 1)) : done(null, Input.empty()),
+                el -> n > 0 ? cont(step(n - 1)) : done(Unit.unit(), Input.empty()),
                 () -> cont(step(n)),
                 () -> done(Unit.unit(), Input.eof())
             );
