@@ -21,7 +21,7 @@ public abstract class Enumeratee<From, To> {
 
     protected <TT> Iteratee<From, TT> flatten(Iteratee<From, Iteratee<To, TT>> iter) {
         return iter.flatMap( r -> r.match(
-               _done -> done( _done.run(), Input.empty() ),
+               _done -> done( _done.run(), Input.empty() ), // FIXME: Is Input.empty() ok?
                _cont -> _cont.apply(Input.eof()).match(
                    _innerDone  -> done( _innerDone.run(), Input.eof() ),
                    _innerCont  -> error( new RuntimeException("Diverging inner iteratee!") ),

@@ -20,7 +20,7 @@ public class Enumeratees {
         public <TT> Iteratee<From, Iteratee<To, TT>> apply(Iteratee<To, TT> iter) {
             return iter.match(
                 _done -> done(_done, Input.empty()),
-                _cont -> kontinue(x -> _cont.apply(x)),
+                _cont -> kontinue(_cont::apply),
                 _err  -> done(_err, Input.empty())
             );
         }
@@ -33,13 +33,13 @@ public class Enumeratees {
             @Override
             <TT> Iteratee<F, Iteratee<T, TT>> kontinue(Function<Input<T>, Iteratee<T, TT>> k) {
                 return cont(input -> input.match(
-                    _elt -> k.apply(Input.elem(f.apply(_elt))).match(
-                        _done -> done(_done, Input.empty()),
-                        _cont -> kontinue(k),
-                        _err  -> done(_err, Input.empty())
-                    ),
-                    ()   -> kontinue(k),
-                    ()   -> done(k.apply(Input.eof()), Input.eof())
+                        _elt -> k.apply(Input.elem(f.apply(_elt))).match(
+                                _done -> done(_done, Input.empty()),
+                                _cont -> kontinue(_cont::apply),
+                                _err -> done(_err, Input.empty())
+                        ),
+                        () -> kontinue(k),
+                        () -> done(k.apply(Input.eof()), Input.eof())
                 ));
             }
         };
