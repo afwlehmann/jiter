@@ -39,7 +39,7 @@ public class Enumeratees {
                         _err  -> done(_err, Input.empty())
                     ),
                     ()   -> kontinue(k),
-                    ()   -> null
+                    ()   -> done(k.apply(Input.eof()), Input.eof())
                 ));
             }
         };

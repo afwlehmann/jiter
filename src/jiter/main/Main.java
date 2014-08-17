@@ -6,6 +6,8 @@
 package jiter.main;
 
 import jiter.coll.List;
+import jiter.enumeratee.Enumeratee;
+import jiter.enumeratee.Enumeratees;
 import jiter.enumerator.Enumerator;
 import jiter.enumerator.Enumerators;
 import jiter.iteratee.Iteratee;
@@ -28,7 +30,7 @@ public class Main {
         Iteratee<Integer, List<Integer>> drop5Take5 =
                 Iteratees.<Integer>drop(5).flatMap(x -> Iteratees.<Integer>take(5));
 
-        System.out.println(enumer.run(drop5Take5));
+        //System.out.println(enumer.run(drop5Take5));
 
         List<Integer> foo = List.from(28, 29);
         foo = foo.prepend(28).prepend(29).map(x -> 2*x);
@@ -48,6 +50,11 @@ public class Main {
 
         System.out.println(lst.foldLeft(0, acc -> elt -> acc + elt));
         System.out.println(lst.foldRight(elt -> acc -> acc + elt, 0));
+
+        Enumerator<String> es = Enumerators.enumerate(List.from("1", "2", "3"));
+        Enumeratee<String, Integer> er = Enumeratees.map(s -> Integer.valueOf(s));
+        Iteratee<Integer, Integer> is = Iteratees.sumInt();
+        System.out.println(es.run(er.transform(is)));
 
     }
 
