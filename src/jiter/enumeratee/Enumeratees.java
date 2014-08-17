@@ -12,7 +12,6 @@ import java.util.function.Function;
 
 import static jiter.iteratee.Iteratees.cont;
 import static jiter.iteratee.Iteratees.done;
-import static jiter.iteratee.Iteratees.error;
 
 public class Enumeratees {
 
@@ -31,22 +30,17 @@ public class Enumeratees {
 
     public static <F, T> Enumeratee<F, T> map(Function<F, T> f) {
         return new CheckDone<F, T>() {
-            <TT> Function<Input<F>, Iteratee<F, Iteratee<T, TT>>>
-            step(Function<Input<T>, Iteratee<T, TT>> k) {
-                return input -> input.match(
+            @Override
+            <TT> Iteratee<F, Iteratee<T, TT>> kontinue(Function<Input<T>, Iteratee<T, TT>> k) {
+                return cont(input -> input.match(
                     _elt -> k.apply(Input.elem(f.apply(_elt))).match(
                         _done -> done(_done, Input.empty()),
                         _cont -> kontinue(k),
-                        _err -> done(_err, Input.empty())
+                        _err  -> done(_err, Input.empty())
                     ),
-                    ()   -> cont(step(k)),
+                    ()   -> kontinue(k),
                     ()   -> null
-                );
-            }
-
-            @Override
-            <TT> Iteratee<F, Iteratee<T, TT>> kontinue(Function<Input<T>, Iteratee<T, TT>> k) {
-                return cont(step(k));
+                ));
             }
         };
     }
