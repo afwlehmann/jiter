@@ -55,6 +55,7 @@ public class Main {
         Enumeratee<String, Integer> er = Enumeratees.map(s -> Integer.valueOf(s));
         Iteratee<Integer, Integer> is = Iteratees.sumInt();
         System.out.println(es.run(er.transform(is)));
+        System.out.println(es.through(er).run(is));
 
     }
 

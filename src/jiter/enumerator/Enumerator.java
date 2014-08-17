@@ -5,6 +5,7 @@
 
 package jiter.enumerator;
 
+import jiter.enumeratee.Enumeratee;
 import jiter.iteratee.Iteratee;
 
 public interface Enumerator<From> {
@@ -13,6 +14,15 @@ public interface Enumerator<From> {
 
     default <To> To run(Iteratee<From, To> iter) {
         return this.apply(iter).run();
+    }
+
+    default <To> Enumerator<To> through(Enumeratee<From, To> enumeratee) {
+        return new Enumerator<To>() {
+            @Override
+            public <TT> Iteratee<To, TT> apply(Iteratee<To, TT> iter) {
+                return Enumerator.this.apply( enumeratee.apply(iter) ).run();
+            }
+        };
     }
 
 }
