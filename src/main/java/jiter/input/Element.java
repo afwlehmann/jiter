@@ -34,7 +34,8 @@ final class Element<T> extends Input<T> {
         if (!(obj instanceof Element))
             return false;
 
-        Element other = (Element) obj;
+        @SuppressWarnings("rawtypes")
+		Element other = (Element) obj;
         return other.elem.equals(elem);
     }
 

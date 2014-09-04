@@ -56,7 +56,8 @@ public final class Done<In, Out> implements Iteratee<In, Out> {
         if (!(obj instanceof Done))
             return false;
 
-        Done other = (Done) obj;
+        @SuppressWarnings("rawtypes")
+		Done other = (Done) obj;
         return result.equals(other.result) && remainingInput.equals(other.remainingInput);
     }
 
