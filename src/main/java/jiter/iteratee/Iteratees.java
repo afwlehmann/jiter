@@ -5,13 +5,13 @@
 
 package jiter.iteratee;
 
+import java.util.function.Function;
+
 import jiter.coll.List;
 import jiter.coll.Unit;
 import jiter.fun.Monoid;
 import jiter.fun.Monoids;
 import jiter.input.Input;
-
-import java.util.function.Function;
 
 public class Iteratees {
 
@@ -36,8 +36,8 @@ public class Iteratees {
      */
 
     static class Length {
-        static <T> Function<Input<T>, Iteratee<T, Integer>> step(final Integer n) { // surprisingly, "int" is sufficient here (since Java 8?).
-            return in -> in.match(
+        static <T> Function<Input<T>, Iteratee<T, Integer>> step(int n) {
+            return in -> in.<Iteratee<T, Integer>>match(
                 el -> cont(step(n + 1)),
                 () -> cont(step(n)),
                 () -> done(n, Input.eof())
@@ -54,8 +54,8 @@ public class Iteratees {
      */
 
     static class Sums {
-        static <T> Function<Input<T>, Iteratee<T, T>> step(Monoid<T> mon, final T acc) {
-            return in -> in.match(
+        static <T> Function<Input<T>, Iteratee<T, T>> step(Monoid<T> mon, T acc) {
+            return in -> in.<Iteratee<T, T>>match(
                 el -> cont(step(mon, mon.mappend(acc, el))),
                 () -> cont(step(mon, acc)),
                 () -> done(acc, Input.eof())
@@ -72,8 +72,8 @@ public class Iteratees {
      */
 
     static class Take {
-        static <T> Function<Input<T>, Iteratee<T, List<T>>> step(final Integer n, final List<T> acc) {
-            return in -> in.match(
+        static <T> Function<Input<T>, Iteratee<T, List<T>>> step(int n, List<T> acc) {
+            return in -> in.<Iteratee<T, List<T>>>match(
                 el -> {
                     if (n <= 0) {
                         return done(acc, Input.elem(el));
@@ -96,8 +96,8 @@ public class Iteratees {
      */
 
     static class Drop {
-        static <T> Function<Input<T>, Iteratee<T, Unit>> step(final Integer n) {
-            return in -> in.match(
+        static <T> Function<Input<T>, Iteratee<T, Unit>> step(int n) {
+            return in -> in.<Iteratee<T, Unit>>match(
                 el -> n > 0 ? cont(step(n - 1)) : done(Unit.unit(), Input.empty()),
                 () -> cont(step(n)),
                 () -> done(Unit.unit(), Input.eof())
@@ -114,8 +114,8 @@ public class Iteratees {
      */
 
     static class Filter {
-        static <T> Function<Input<T>, Iteratee<T, List<T>>> step(final Function<T, Boolean> predicate, final List<T> acc) {
-            return in -> in.match(
+        static <T> Function<Input<T>, Iteratee<T, List<T>>> step(Function<T, Boolean> predicate, List<T> acc) {
+            return in -> in.<Iteratee<T, List<T>>>match(
                 el -> cont(step(predicate, predicate.apply(el) ? acc.append(el) : acc)),
                 () -> cont(step(predicate, acc)),
                 () -> done(acc, Input.eof())
