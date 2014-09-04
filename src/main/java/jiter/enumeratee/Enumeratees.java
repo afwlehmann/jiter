@@ -5,13 +5,13 @@
 
 package jiter.enumeratee;
 
-import jiter.input.Input;
-import jiter.iteratee.Iteratee;
+import static jiter.iteratee.Iteratees.cont;
+import static jiter.iteratee.Iteratees.done;
 
 import java.util.function.Function;
 
-import static jiter.iteratee.Iteratees.cont;
-import static jiter.iteratee.Iteratees.done;
+import jiter.input.Input;
+import jiter.iteratee.Iteratee;
 
 public class Enumeratees {
 
@@ -39,7 +39,7 @@ public class Enumeratees {
                                 _err -> done(_err, Input.empty())
                         ),
                         () -> kontinue(k),
-                        () -> done(k.apply(Input.eof()), Input.eof())
+                        () -> done(k.apply(Input.eof()), Input.<F>eof())
                 ));
             }
         };
